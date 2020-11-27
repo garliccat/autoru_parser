@@ -49,7 +49,10 @@ def get_data(html):
         return None
 
     soup = bs(html, 'lxml')
-    cards = soup.find_all('div', {'class':'ListingItem-module__main'})
+    try:
+        cards = soup.find_all('div', {'class':'ListingItem-module__main'})
+    except:
+        return None
     
     # fetching datapoints from cards
     for card in cards:
@@ -133,18 +136,18 @@ def get_data(html):
 
         print('\n')
 
-        # write_csv([rec_num,
-        #     today,
-        #     title,
-        #     brand,
-        #     model,
-        #     engine,
-        #     gear,
-        #     drive,
-        #     color,
-        #     year,
-        #     mileage,
-        #     price])
+        write_csv([rec_num,
+            today,
+            title,
+            brand,
+            model,
+            engine,
+            gear,
+            drive,
+            color,
+            year,
+            mileage,
+            price])
 
         rec_num += 1
 
