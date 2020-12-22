@@ -9,30 +9,47 @@ pd.options.display.width = 1000
 pd.options.display.max_columns = 100
 pd.options.display.max_colwidth = 200
 
-df = pd.read_csv('autoru_cleaned.csv', sep=';')
-
-print(df.head())
+source = pd.read_csv('autoru_cleaned.csv', sep=';')
 
 ### cut high prices
-df = df[df['price'] < df['price'].quantile(0.95)]
+df = source[source['price'] < source['price'].quantile(0.95)]
 
-### gas type vs price plot
-gas_types = df['gas_type'].value_counts().index[:2]
-df_gas = df[df['gas_type'].isin(gas_types)]
-fig, ax = plt.subplots(figsize=(12, 6))
-sns.histplot(data=df_gas, 
-    x='price', 
-    hue='gas_type', 
-    bins=50,
-    multiple='dodge',
-    # kind='hist',
-    ax=ax,
+'''
+### colors popularity before and after 1990
+colors = df[['year', 'color', 'hps']].groupby(['year', 'color'], as_index=False).count()
+colors = colors[colors['year'] < 1990]
+colors = colors.pivot_table(values='hps', 
+    index='color', 
+    columns='year', 
+    aggfunc='sum', 
+    fill_value=0)
+plt.figure(figsize=(10, 5))
+sns.heatmap(colors,
+    robust=True,
+    cbar_kws={'label': 'Count'},
     )
+plt.xticks(rotation=90)
+plt.title('Car color popularity up to 1990')
+plt.xlabel('Year')
+plt.ylabel('Color')
+plt.tight_layout()
+plt.savefig('plots/colors_year_1990.jpg')
+plt.show()
+
+
+'''
+### gas type vs price plot
+# gas_types = df['gas_type'].value_counts().index[:2]
+# df_gas = df[df['gas_type'].isin(gas_types)]
+# fig, ax = plt.subplots(figsize=(12, 6))
+sns.boxplot(x=df['gas_type'],
+    y=df['price'])
 plt.xlabel('Price')
 plt.ylabel('Count')
 plt.title('Price vs gas type distribution')
-
+plt.savefig('plots/gas_price.jpg')
 plt.show()
+# plt.clf()
 
 
 ### age vs price plot
@@ -44,5 +61,9 @@ sns.scatterplot(data=df_age.droplevel(0, axis=1),
     size='count',
     sizes=(20, 200)
     )
+plt.ylabel('Mean price')
+plt.xlabel('Production year')
+plt.title('Mean price vs Production year', fontsize=20)
 
-plt.show()
+# plt.show()
+plt.clf()
